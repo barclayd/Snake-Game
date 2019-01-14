@@ -146,7 +146,6 @@ def end_game():
     game_status = 'loaded'
 
 
-
 def start_game():
     global game_status
     if game_status == 'loading':
@@ -201,8 +200,10 @@ def easy():
 def medium():
     global delay
     global game_level
+    global game_speed
     if game_status == 'loading':
         delay = 0.12
+        game_speed = 25
         update_difficulty('Medium')
 
 
@@ -332,15 +333,18 @@ while True:
             random_food()
             if delay > 0.03 and game_level == 'Easy':
                 delay -= 0.01
+                game_speed += 0.5
             if delay > 0.03 and game_level == 'Medium':
                 delay -= 0.02
             if delay > 0.03 and game_level == 'Hard':
                 delay -= 0.02
             elif score > 8 and game_level == 'Medium' and delay > 0.03:
                 delay /= 1.1
-            elif score > 5 and game_level == 'Hard' and delay > 0.1:
+                game_speed += 1
+            elif 5 < score < 10 and game_level == 'Hard' and delay > 0.1:
                 delay /= 1.3
-            elif score > 10 and game_level == 'Hard':
+                game_speed += 4
+            elif score >= 10 and game_level == 'Hard':
                 delay = 0
             elif delay < 0.004 and game_level == 'Easy':
                 delay = 0
@@ -370,6 +374,5 @@ while True:
         for segment in segments:
             if segment.distance(head) < 20:
                 end_game()
-
         time.sleep(delay)
 
