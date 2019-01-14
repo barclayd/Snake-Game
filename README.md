@@ -47,7 +47,7 @@ Snake will now open in a new window and you can start playing!
 
 ### Features 
 
-- [x] Saves high score to disk
+- [x] Saves high score to/loads from disk
 - [x] Difficulty levels: Easy, Medium, Hard
 - [x] Reset high score
 - [x] Splash screen and options screen
