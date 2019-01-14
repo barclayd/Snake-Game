@@ -15,7 +15,7 @@ wn.tracer(0)
 head = turtle.Turtle()
 head.speed(0)
 head.shape("square")
-head.color('#00cccc')
+head.color('#00cece')
 head.penup()
 head.goto(0, 0)
 head.direction = 'right'
@@ -30,6 +30,10 @@ food.color('#cd6700')
 food.penup()
 food.setposition(random.randint(-275, 275), random.randint(-275, 275))
 head.direction = 'right'
+
+
+# snake body growth
+segments = []
 
 # functions
 
@@ -60,6 +64,17 @@ def move_left():
 def move_right():
     head.direction = 'right'
 
+
+def random_food():
+    food.setposition(random.randint(-275, 275), random.randint(-275, 275))
+
+
+def set_new_score():
+    score_pen.clear()
+    snake_score = "Score: %s" % score
+    score_pen.write(snake_score, False, align="center", font=("Mono", 14, "bold"))
+
+
 # keybindings
 wn.listen()
 wn.onkeypress(move_up, "Up")
@@ -67,22 +82,26 @@ wn.onkeypress(move_down, "Down")
 wn.onkeypress(move_left, "Left")
 wn.onkeypress(move_right, "Right")
 
+# game status
+game_status = True
+
 # scoring
 score = 0
-snake_score = "Score: %s" % score
+# snake_score = "Score: %s" % score
 score_pen = turtle.Turtle()
 score_pen.speed(0)
 score_pen.color("white")
 score_pen.penup()
 score_pen.setposition(-150, 275)
-score_pen.write(snake_score, False, align="center", font=("Mono", 14, "bold"))
+set_new_score()
+# score_pen.write(snake_score, False, align="center", font=("Mono", 14, "bold"))
 score_pen.hideturtle()
 
 high_score = 0
 snake_high_score = "High Score: %s" % high_score
 high_score_pen = turtle.Turtle()
 high_score_pen.speed(0)
-high_score_pen.color("white")
+high_score_pen.color("#001c1c")
 high_score_pen.penup()
 high_score_pen.setposition(150, 275)
 high_score_pen.write(snake_high_score, False, align="center", font=("Mono", 14, "bold"))
@@ -91,15 +110,59 @@ high_score_pen.hideturtle()
 # main game loop
 while True:
     wn.update()
+
+    # border checking
+    if head.xcor() < -290 or head.xcor() > 290 or head.ycor() > 290 or head.ycor() < -290:
+        head.direction = 'stop'
+        game_status = False
+        time.sleep(1)
+        head.setposition(0, 0)
+        # hide segments
+        for segment in segments:
+            segment.setposition(1000, 1000)
+        segments.clear()
+        random_food()
+        if score > high_score:
+            high_score = score
+        high_score_pen.clear()
+        snake_high_score = "High Score: %s" % high_score
+        high_score_pen.write(snake_high_score, False, align="center", font=("Mono", 14, "bold"))
+        score = 0
+        set_new_score()
+        delay = 0.2
+    # snake has eaten food
     if head.distance(food) < 20:
-        # snake has eaten food
         score += 1
-        score_pen.clear()
-        snake_score = "Score: %s" % score
-        score_pen.write(snake_score, False, align="center", font=("Mono", 14, "bold"))
-        food.setposition(random.randint(-275, 275), random.randint(-275, 275))
-        if delay > 0.01:
+        # score_pen.clear()
+        # snake_score = "Score: %s" % score
+        # score_pen.write(snake_score, False, align="center", font=("Mono", 14, "bold"))
+        set_new_score()
+        random_food()
+        if delay > 0.03 and score < 7:
             delay -= 0.02
+        elif score > 8 and delay > 0.03:
+            delay /= 1.1
+        elif delay < 0.03:
+            delay += 0
+
+        # add body segment
+        new_segment = turtle.Turtle()
+        new_segment.speed(0)
+        new_segment.shape("square")
+        new_segment.color('#009b9b')
+        new_segment.penup()
+        segments.append(new_segment)
+
+    # move end segments first in reverse order
+    for index in range(len(segments)-1, 0, -1):
+        x = segments[index-1].xcor()
+        y = segments[index-1].ycor()
+        segments[index].setposition(x, y)
+
+    # move 1st segment to where the head is
+    if len(segments) > 0:
+        segments[0].setposition(head.xcor(), head.ycor())
+
     move()
     time.sleep(delay)
 
